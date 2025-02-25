@@ -17,7 +17,7 @@
 # app = Flask(__name__)
 
 # # Google Gemini API Setup
-# genai.configure(api_key="AIzaSyCr2Lx6jYvB4UuifiVgrJsJtQwWmqIWEjg")
+# genai.configure(api_key="<api>")
 # model = genai.GenerativeModel('gemini-pro')
 
 # # हेल्थ रिलेटेड सवाल चेक करने का फ़ंक्शन
