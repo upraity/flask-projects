@@ -164,7 +164,7 @@ if (creatorQuestions.some(q => lowerInput.includes(q))) {
 
 
             // Normal API Request
-            fetch("https://healths-chatbot.onrender.com/chat", {
+            fetch("https://healths-chatbot.onrender.com", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: userInput })
