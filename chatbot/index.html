@@ -1,0 +1,178 @@
+<!-- https://aistudio.google.com/apikey -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Chatbot</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        #chatbox {
+            width: 60%;
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 10px;
+            display: inline-block;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .user { 
+            align-self: flex-end; 
+            background-color: #0078ff; 
+            color: white; 
+            text-align: right;
+        }
+
+        .bot { 
+            align-self: flex-start; 
+            background-color: #e0e0e0; 
+            color: black; 
+            text-align: left;
+        }
+
+        #inputContainer {
+            width: 60%;
+            display: flex;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin-left: 10px;
+            background: #0078ff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: #005bb5;
+        }
+    </style>
+</head>
+<body>
+    <h2>Health Chatbot</h2>
+    <div id="chatbox"></div>
+    <div id="inputContainer">
+        <input type="text" id="userInput" placeholder="Ask a health-related question...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        let isHealthQueryConfirmed = false; // Flag to track if health-related conversation is confirmed
+    
+        // Load old messages from localStorage
+        window.onload = function() {
+            let chatbox = document.getElementById("chatbox");
+            let messages = JSON.parse(localStorage.getItem("chatHistory")) || [];
+    
+            messages.forEach(msg => {
+                let messageDiv = document.createElement("div");
+                messageDiv.classList.add("message", msg.type);
+                messageDiv.innerText = msg.text;
+                chatbox.appendChild(messageDiv);
+            });
+    
+            chatbox.scrollTop = chatbox.scrollHeight;
+        };
+    
+        function sendMessage() {
+            let userInput = document.getElementById("userInput").value.trim();
+            if (!userInput) return;
+    
+            let chatbox = document.getElementById("chatbox");
+    
+            // User Message
+            let userMessage = document.createElement("div");
+            userMessage.classList.add("message", "user");
+            userMessage.innerText = userInput;
+            chatbox.appendChild(userMessage);
+    
+            saveToLocalStorage(userInput, "user"); // Save User Message
+            document.getElementById("userInput").value = "";
+            chatbox.scrollTop = chatbox.scrollHeight;
+    
+            // Show "Bot is typing..."
+            let typingMessage = document.createElement("div");
+            typingMessage.classList.add("message", "bot");
+            typingMessage.innerText = "Typing...";
+            chatbox.appendChild(typingMessage);
+            chatbox.scrollTop = chatbox.scrollHeight;
+    
+            // Check if the message is health-related
+            if (!isHealthQueryConfirmed && !isHealthRelated(userInput)) {
+                typingMessage.innerText = "आपको अपनी या किसी और की सेहत से संबंधित कुछ पूछना है?";
+                saveToLocalStorage("आपको अपनी या किसी और की सेहत से संबंधित कुछ पूछना है?", "bot");
+                isHealthQueryConfirmed = true;
+                return;
+            }
+    
+            fetch("http://127.0.0.1:5000/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                typingMessage.innerText = data.reply; // Replace "Bot is typing..." with actual reply
+                saveToLocalStorage(data.reply, "bot");
+                chatbox.scrollTop = chatbox.scrollHeight;
+            })
+            .catch(error => {
+                typingMessage.innerText = "Error! Please try again.";
+                console.error("Error:", error);
+            });
+        }
+    
+        // Function to save chat messages to localStorage
+        function saveToLocalStorage(text, type) {
+            let messages = JSON.parse(localStorage.getItem("chatHistory")) || [];
+            messages.push({ text, type });
+            localStorage.setItem("chatHistory", JSON.stringify(messages));
+        }
+    
+        // Function to check if a message is health-related
+        function isHealthRelated(text) {
+            let healthKeywords = [
+                "health", "medicine", "doctor", "hospital", "diet", "exercise",
+                "pain", "illness", "treatment", "disease", "nutrition",
+                "symptoms", "infection", "cold", "fever", "sick", "injury",
+                "BP", "sugar", "cancer", "heart", "lungs", "cough"
+            ];
+    
+            text = text.toLowerCase();
+            return healthKeywords.some(keyword => text.includes(keyword));
+        }
+    </script>    
+</body>
+</html>
