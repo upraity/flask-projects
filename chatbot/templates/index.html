@@ -131,8 +131,8 @@
     
             // Check if the message is health-related
             if (!isHealthQueryConfirmed && !isHealthRelated(userInput)) {
-                typingMessage.innerText = "आपको अपनी या किसी और की सेहत से संबंधित कुछ पूछना है?";
-                saveToLocalStorage("आपको अपनी या किसी और की सेहत से संबंधित कुछ पूछना है?", "bot");
+                typingMessage.innerText = "हम आपकी कैसे सहायता कर सकते हैं! आपकी या किसी और की सेहत से जुड़ी कोई चिंता या प्रश्न?";
+                saveToLocalStorage("हम आपकी कैसे सहायता कर सकते हैं! आपकी या किसी और की सेहत से जुड़ी कोई चिंता या प्रश्न?", "bot");
                 isHealthQueryConfirmed = true;
                 return;
             }
@@ -167,7 +167,11 @@
                 "health", "medicine", "doctor", "hospital", "diet", "exercise",
                 "pain", "illness", "treatment", "disease", "nutrition",
                 "symptoms", "infection", "cold", "fever", "sick", "injury",
-                "BP", "sugar", "cancer", "heart", "lungs", "cough"
+                "BP", "sugar", "cancer", "heart", "lungs", "cough", "health", "medicine", "doctor", "hospital", "diet", "exercise", "treatment", "symptoms",
+    "pain", "illness", "nutrition", "fever", "infection", "disease", "bp", "sugar", "cancer",
+    "heart", "lungs", "cough", "headache", "blood pressure", "diabetes", "cholesterol", "therapy",
+    "surgery", "vaccine", "covid", "dentist", "eye", "mental health", "stress", "depression",
+    "anxiety", "meditation", "skin", "allergy", "rash", "hair fall", "weight loss", "gym"
             ];
     
             text = text.toLowerCase();
