@@ -1,6 +1,6 @@
 
 import google.generativeai as genai
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_templates
 from flask_cors import CORS
 
 # Google Gemini API Key सेट करें
