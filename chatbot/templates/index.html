@@ -127,7 +127,7 @@
         chatbox.appendChild(typingMessage);
         chatbox.scrollTop = chatbox.scrollHeight;
 
-        fetch("http://127.0.0.1:5000/chat", {
+        fetch("https://healths-chatbot.onrender.com/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: userInput })
