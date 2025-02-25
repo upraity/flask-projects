@@ -88,95 +88,69 @@
         <button onclick="sendMessage()">Send</button>
     </div>
 
-    <script>
-        let isHealthQueryConfirmed = false; // Flag to track if health-related conversation is confirmed
-    
-        // Load old messages from localStorage
-        window.onload = function() {
-            let chatbox = document.getElementById("chatbox");
-            let messages = JSON.parse(localStorage.getItem("chatHistory")) || [];
-    
-            messages.forEach(msg => {
-                let messageDiv = document.createElement("div");
-                messageDiv.classList.add("message", msg.type);
-                messageDiv.innerText = msg.text;
-                chatbox.appendChild(messageDiv);
-            });
-    
+   <script>
+    // Load old messages from localStorage
+    window.onload = function() {
+        let chatbox = document.getElementById("chatbox");
+        let messages = JSON.parse(localStorage.getItem("chatHistory")) || [];
+
+        messages.forEach(msg => {
+            let messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", msg.type);
+            messageDiv.innerText = msg.text;
+            chatbox.appendChild(messageDiv);
+        });
+
+        chatbox.scrollTop = chatbox.scrollHeight;
+    };
+
+    function sendMessage() {
+        let userInput = document.getElementById("userInput").value.trim();
+        if (!userInput) return;
+
+        let chatbox = document.getElementById("chatbox");
+
+        // User Message
+        let userMessage = document.createElement("div");
+        userMessage.classList.add("message", "user");
+        userMessage.innerText = userInput;
+        chatbox.appendChild(userMessage);
+
+        saveToLocalStorage(userInput, "user"); // Save User Message
+        document.getElementById("userInput").value = "";
+        chatbox.scrollTop = chatbox.scrollHeight;
+
+        // Show "Bot is typing..."
+        let typingMessage = document.createElement("div");
+        typingMessage.classList.add("message", "bot");
+        typingMessage.innerText = "Typing...";
+        chatbox.appendChild(typingMessage);
+        chatbox.scrollTop = chatbox.scrollHeight;
+
+        fetch("http://127.0.0.1:5000/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: userInput })
+        })
+        .then(response => response.json())
+        .then(data => {
+            typingMessage.innerText = data.reply; // Replace "Bot is typing..." with actual reply
+            saveToLocalStorage(data.reply, "bot");
             chatbox.scrollTop = chatbox.scrollHeight;
-        };
-    
-        function sendMessage() {
-            let userInput = document.getElementById("userInput").value.trim();
-            if (!userInput) return;
-    
-            let chatbox = document.getElementById("chatbox");
-    
-            // User Message
-            let userMessage = document.createElement("div");
-            userMessage.classList.add("message", "user");
-            userMessage.innerText = userInput;
-            chatbox.appendChild(userMessage);
-    
-            saveToLocalStorage(userInput, "user"); // Save User Message
-            document.getElementById("userInput").value = "";
-            chatbox.scrollTop = chatbox.scrollHeight;
-    
-            // Show "Bot is typing..."
-            let typingMessage = document.createElement("div");
-            typingMessage.classList.add("message", "bot");
-            typingMessage.innerText = "Typing...";
-            chatbox.appendChild(typingMessage);
-            chatbox.scrollTop = chatbox.scrollHeight;
-    
-            // Check if the message is health-related
-            if (!isHealthQueryConfirmed && !isHealthRelated(userInput)) {
-                typingMessage.innerText = "हम आपकी कैसे सहायता कर सकते हैं! आपकी या किसी और की सेहत से जुड़ी कोई चिंता या प्रश्न?";
-                saveToLocalStorage("हम आपकी कैसे सहायता कर सकते हैं! आपकी या किसी और की सेहत से जुड़ी कोई चिंता या प्रश्न?", "bot");
-                isHealthQueryConfirmed = true;
-                return;
-            }
-    
-            fetch("http://127.0.0.1:5000/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: userInput })
-            })
-            .then(response => response.json())
-            .then(data => {
-                typingMessage.innerText = data.reply; // Replace "Bot is typing..." with actual reply
-                saveToLocalStorage(data.reply, "bot");
-                chatbox.scrollTop = chatbox.scrollHeight;
-            })
-            .catch(error => {
-                typingMessage.innerText = "Error! Please try again.";
-                console.error("Error:", error);
-            });
-        }
-    
-        // Function to save chat messages to localStorage
-        function saveToLocalStorage(text, type) {
-            let messages = JSON.parse(localStorage.getItem("chatHistory")) || [];
-            messages.push({ text, type });
-            localStorage.setItem("chatHistory", JSON.stringify(messages));
-        }
-    
-        // Function to check if a message is health-related
-        function isHealthRelated(text) {
-            let healthKeywords = [
-                "health", "medicine", "doctor", "hospital", "diet", "exercise",
-                "pain", "illness", "treatment", "disease", "nutrition",
-                "symptoms", "infection", "cold", "fever", "sick", "injury",
-                "BP", "sugar", "cancer", "heart", "lungs", "cough", "health", "medicine", "doctor", "hospital", "diet", "exercise", "treatment", "symptoms",
-    "pain", "illness", "nutrition", "fever", "infection", "disease", "bp", "sugar", "cancer",
-    "heart", "lungs", "cough", "headache", "blood pressure", "diabetes", "cholesterol", "therapy",
-    "surgery", "vaccine", "covid", "dentist", "eye", "mental health", "stress", "depression",
-    "anxiety", "meditation", "skin", "allergy", "rash", "hair fall", "weight loss", "gym"
-            ];
-    
-            text = text.toLowerCase();
-            return healthKeywords.some(keyword => text.includes(keyword));
-        }
-    </script>    
+        })
+        .catch(error => {
+            typingMessage.innerText = "Error! Please try again.";
+            console.error("Error:", error);
+        });
+    }
+
+    // Function to save chat messages to localStorage
+    function saveToLocalStorage(text, type) {
+        let messages = JSON.parse(localStorage.getItem("chatHistory")) || [];
+        messages.push({ text, type });
+        localStorage.setItem("chatHistory", JSON.stringify(messages));
+    }
+</script>
+
 </body>
 </html>
