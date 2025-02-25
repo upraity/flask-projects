@@ -12,7 +12,7 @@ CORS(app)  # CORS Enable for frontend
 # 🔹 Home Route for Debugging (Fix 404 Error)
 @app.route("/")
 def home():
-    return "Flask Chatbot API is Running! Use /chat for API."
+    return render_template("index.html")
     
 @app.route("/chat", methods=["POST"])
 def chat():
